@@ -8,23 +8,33 @@ using namespace cppshell;
 void VM::boot(bool VERB){
   //cout << "Booting " << name << endl;
   proc_ = new subprocess{
-    "numactl", "--physcpubind=4","--membind=0",
+    //"numactl", "--physcpubind=4","--membind=0",
+    /*
     "qemu-system-x86_64", "-enable-kvm",
     "-cpu","host","-m","1024","-smp","1",
     "-hda", hda_, "-hdb", hdb_,
     "-device","virtio-net,netdev=net0,mac="+macaddress_,
-    "-netdev","tap,id=net0,script=./ubuntu_tests/qemu-ifup",
-    "-nographic"};    
+    "-netdev","tap,id=net0,script=./qemu-ifup",
+    "-nographic"};
+    */
+    /*
+    "qemu-system-x86_64", "-enable-kvm",
+    "-hda", hda_, "-nographic"};
+    */
+    "telnet", "irc.homelien.no", "6667"};
+  
+  cout << "booting..." << endl;
   string s;
-  do{
+  do {
+      cout << "getline: ";
       s = proc_->getline();      
-      if(s == "")
-	throw 99;
+      cout << s << endl;
+      if (s.empty()) throw 99;
       
-      if (VERB)
-	cout << s;
-      
-  }while( s.find(bootstring_) == string::npos && s != "");
+      cout << s << endl;
+      if (VERB) cout << s;
+  }
+  while (s.find(bootstring_) == string::npos && !s.empty());
   is_booted_ = true;
 }
 
@@ -63,9 +73,7 @@ bool VM::is_booted(){
 
 
 requires_login::requires_login(std::regex user_prompt,std::regex main_prompt,VM* vm) :
-  user_prompt_(user_prompt),main_prompt_(main_prompt),vm_(vm)
-{};
-
+  user_prompt_(user_prompt), main_prompt_(main_prompt), vm_(vm)  {}
 
 void requires_login::login(string user, string pass, bool VERB)
 {
@@ -90,20 +98,9 @@ void requires_login::login(string user, string pass, bool VERB)
   string res = vm_->read_until_match(main_prompt_, VERB);
   
   if (VERB) cout << res;
-  
 }
 
-
-void requires_login::read_to_prompt(bool VERB){
+void requires_login::read_to_prompt(bool VERB) {
   string res = vm_->read_until_match(main_prompt_, VERB);
   if (VERB) cout << res;
 }
-
-
-LinuxVM::LinuxVM (std::string name, std::string mac, std::string ip, std::string hda, std::string hdb,
-		  std::string bootstr, std::string logfile, 
-		  std::regex user_prompt, std::regex main_prompt) :
-  VM(name, mac, ip, hda, hdb, bootstr, logfile), 
-  requires_login(user_prompt, main_prompt, this)
-{}
-

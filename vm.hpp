@@ -22,40 +22,40 @@ class VM {
   
 public:
   void boot(bool VERB = false);
-    
-  inline void kill(){
+  
+  void kill(){
     delete proc_;
   }
-    
-  inline std::string ip(){
+  
+  std::string ip() const {
     return ip_;
   }
   
-  inline std::string logfile(){
+  std::string logfile() const {
     return logfile_;
   }
   
-  inline void set_logfile(std::string s){
+  void set_logfile(std::string s) {
     logfile_=s;
   }
 
-  inline void write(std::string s){
+  void write(std::string s) {
     proc_->write(s);
   }
   
-  inline std::string name(){
+  std::string name() const {
     return name_;
   }
   
-  inline int pid(){
+  int pid() const {
     return proc_->pid();
   }
   
-  inline std::string getline(){
+  std::string getline() {
     return proc_->getline();
   }
   
-  inline std::string read(int n){
+  std::string read(int n) {
     return proc_->read(n);
   }
   
@@ -71,20 +71,15 @@ public:
   VM(std::string name, std::string mac, std::string ip, std::string hda, std::string hdb, 
      std::string bootstr, std::string logfile);
   
-  inline virtual ~VM(){
+  virtual ~VM() {
     delete proc_;
   }
 
-  // Don't think we want copies. Instead we emplace into a map.
   VM(const VM&) = delete;
   VM& operator=(const VM&) = delete;
-  
-  // Default move should be fine. 
   VM(VM&&) = default;
   VM& operator=(VM&&) = default;
-  
 };
-
 
 class LoginException : public std::runtime_error {
   using runtime_error::runtime_error;
@@ -103,23 +98,12 @@ public:
   void read_to_prompt(bool VERB = false);
 };
 
-
-/*  
-class has_shell {
-  regex main_prompt_;
-  cppshell::subprocess* proc_{0};
-public:
-  has_shell(std::regex main_prompt_, cppshell::subprocess*);
-  std::string sh(std::string command);
-};
-*/
-
-class LinuxVM : public VM, public requires_login { //public has_shell
-  
+class LinuxVM : public VM, public requires_login {
 public: 
   LinuxVM (std::string name, std::string mac, std::string ip, std::string hda, std::string hdb,
-	   std::string bootstr, std::string logfile, 
-	   std::regex user_prompt, std::regex main_prompt);
-  
+	  std::string bootstr, std::string logfile, 
+	  std::regex user_prompt, std::regex main_prompt)
+      : VM(name, mac, ip, hda, hdb, bootstr, logfile), 
+        requires_login(user_prompt, main_prompt, this)
+    {}
 };
-
