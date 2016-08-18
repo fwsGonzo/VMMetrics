@@ -1,6 +1,6 @@
 [submodule "perfdata"]
 	path = perfdata
-	url = git@github.com:alfred-bratterud/perfdata.git
+	url = git@github.com:fwsGonzo/perfdata.git
 [submodule "cppshell"]
 	path = cppshell
-	url = git@github.com:alfred-bratterud/cppshell.git
+	url = git@github.com:fwsGonzo/cppshell.git
