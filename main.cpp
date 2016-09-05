@@ -31,7 +31,7 @@ struct cpu_time
   uint64_t cpu_guest;
 };
 
-cpu_time run_includeos_boot_test()
+cpu_time run_includeos_boot_test(int n)
 {
   auto* vm = new
      VM("irc_server",
@@ -51,6 +51,8 @@ cpu_time run_includeos_boot_test()
       ps.guest_time_total()
   };
   /// -----------
+  printf("%u: total CPU time: %lu\n", n+1, usage.cpu_total);
+  printf("%u: guest CPU time: %lu\n", n+1, usage.cpu_guest);
   
   vm->kill();
   delete vm;
@@ -78,12 +80,14 @@ int main(void)
   
   for (int i = 0; i < RUNS; i++)
   {
-    usage.push_back(run_includeos_boot_test());
+    usage.push_back(run_includeos_boot_test(i));
   }
+  printf("------------------------------\n");
+  printf("Over a total of %u runs\n", RUNS);
   
   cpu_time avg = average(usage);
-  printf("total CPU time: %lu\n", avg.cpu_total);
-  printf("guest CPU time: %lu\n", avg.cpu_guest);
+  printf("* Average total CPU time: %lu\n", avg.cpu_total);
+  printf("* Average guest CPU time: %lu\n", avg.cpu_guest);
   /*
   std::string output;
   std::smatch sm;
