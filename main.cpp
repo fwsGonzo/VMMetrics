@@ -25,7 +25,13 @@ union inaddr4
   }
 };
 
-void run_includeos_boot_test()
+struct cpu_time
+{
+  uint64_t cpu_total;
+  uint64_t cpu_guest;
+};
+
+cpu_time run_includeos_boot_test()
 {
   auto* vm = new
      VM("irc_server",
@@ -37,25 +43,47 @@ void run_includeos_boot_test()
         "ircd.log");
   
   vm->boot(false);
-  std::cout << "VM process: " << vm->pid() << std::endl;
   
   /// do the test
   perfdata::Pidstat ps(vm->pid());
-  
-  printf("total CPU time: %lu\n", ps.cpu_time_total());
-  printf("guest CPU time: %lu\n", ps.guest_time_total());
+  cpu_time usage {
+      ps.cpu_time_total(),
+      ps.guest_time_total()
+  };
   /// -----------
   
   vm->kill();
   delete vm;
+  
+  return usage;
+}
+
+cpu_time average(const std::vector<cpu_time>& usage)
+{
+  cpu_time avg {0, 0};
+  for (auto& u : usage)
+  {
+    avg.cpu_total += u.cpu_total;
+    avg.cpu_guest += u.cpu_guest;
+  }
+  avg.cpu_total /= usage.size();
+  avg.cpu_guest /= usage.size();
+  return avg;
 }
 
 int main(void)
 {
-  for (int i = 0; i < 10; i++)
+  const int RUNS = 10;
+  std::vector<cpu_time> usage;
+  
+  for (int i = 0; i < RUNS; i++)
   {
-    run_includeos_boot_test();
+    usage.push_back(run_includeos_boot_test());
   }
+  
+  cpu_time avg = average(usage);
+  printf("total CPU time: %lu\n", avg.cpu_total);
+  printf("guest CPU time: %lu\n", avg.cpu_guest);
   /*
   std::string output;
   std::smatch sm;
