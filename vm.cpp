@@ -1,6 +1,7 @@
 #include "vm.hpp"
 
 #include <iostream>
+#include <cstdio>
 
 using namespace std;
 using namespace cppshell;
@@ -27,7 +28,8 @@ void VM::boot(bool VERB){
   string s;
   do {
       cout << "getline: ";
-      s = proc_->getline();      
+      s = proc_->getline();
+      printf("after getline\n");
       cout << s << endl;
       if (s.empty()) throw 99;
       
