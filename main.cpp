@@ -9,6 +9,8 @@
 #include "vm.hpp"
 #include "perfdata/pidstat.hpp"
 
+#define VERBOSE
+
 union inaddr4
 {
   uint8_t  part[4];
@@ -23,12 +25,9 @@ union inaddr4
   }
 };
 
-std::map<std::string, VM*> instances;
-#define VERBOSE
-
-int main(void)
+void run_includeos_boot_test()
 {
-  instances["ircd"] = new
+  auto* vm = new
      VM("irc_server",
         "c0:01:0a:00:00:2a",
         "10.0.0.42",
@@ -37,7 +36,6 @@ int main(void)
         "IRC SERVICE STARTED",
         "ircd.log");
   
-  auto* vm = instances["ircd"];
   vm->boot(false);
   std::cout << "VM process: " << vm->pid() << std::endl;
   
@@ -48,6 +46,17 @@ int main(void)
   printf("guest CPU time: %lu\n", ps.guest_time_total());
   /// -----------
   
+  vm->kill();
+  delete vm;
+}
+
+int main(void)
+{
+  for (int i = 0; i < 10; i++)
+  {
+    run_includeos_boot_test();
+  }
+  /*
   std::string output;
   std::smatch sm;
   std::regex  re(".*IncludeOS IRC Service.*");
@@ -60,6 +69,5 @@ int main(void)
 #endif
   }
   while (!std::regex_search(output, sm, re));
-  
-  vm->kill();     
+  */
 }

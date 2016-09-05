@@ -25,6 +25,7 @@ public:
   
   void kill(){
     delete proc_;
+    proc_ = nullptr;
   }
   
   std::string ip() const {
