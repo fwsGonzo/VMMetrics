@@ -6,35 +6,24 @@
 using namespace std;
 using namespace cppshell;
 
-void VM::boot(bool VERB){
+void VM::boot(uint32_t memory, bool VERB){
   //cout << "Booting " << name << endl;
-  proc_ = new subprocess{
+  proc_ = new subprocess {
     //"numactl", "--physcpubind=4","--membind=0",
-    /*
     "qemu-system-x86_64", "-enable-kvm",
-    "-cpu","host","-m","1024","-smp","1",
-    "-hda", hda_, "-hdb", hdb_,
+    "-cpu","host", "-m", std::to_string(memory), "-smp","1",
+    "-drive", "file=" + hda_ + ",format=raw,if=ide", 
+    "-drive", "file=" + hdb_ + ",format=raw,if=virtio,media=disk",
     "-device","virtio-net,netdev=net0,mac="+macaddress_,
     "-netdev","tap,id=net0,script=./qemu-ifup",
-    "-nographic"};
-    */
-    /*
-    "qemu-system-x86_64", "-enable-kvm",
-    "-hda", hda_, "-nographic"};
-    */
-    "telnet", "irc.homelien.no", "6667"};
+    "-nographic"
+  };
   
-  cout << "booting..." << endl;
   string s;
   do {
-      cout << "getline: ";
-      s = proc_->getline();
-      printf("after getline\n");
-      cout << s << endl;
-      if (s.empty()) throw 99;
-      
-      cout << s << endl;
-      if (VERB) cout << s;
+    s = proc_->getline();
+    if (s.empty()) throw 99;
+    if (VERB) cout << s;
   }
   while (s.find(bootstring_) == string::npos && !s.empty());
   is_booted_ = true;
@@ -49,7 +38,7 @@ string VM::read_until_match(regex re_match, bool verb){
     if (latest == "\n") {
       lines.push_back(input + latest);
       if (verb)
-	cout << "<matching> " << input << endl;
+          cout << "<matching> " << input << endl;
       input = "";
       continue;
     }

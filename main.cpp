@@ -7,6 +7,7 @@
 #include <map>
 #include <regex>
 #include "vm.hpp"
+#include "perfdata/pidstat.hpp"
 
 union inaddr4
 {
@@ -37,12 +38,19 @@ int main(void)
         "ircd.log");
   
   auto* vm = instances["ircd"];
-  vm->boot(true);
+  vm->boot(false);
   std::cout << "VM process: " << vm->pid() << std::endl;
+  
+  /// do the test
+  perfdata::Pidstat ps(vm->pid());
+  
+  printf("total CPU time: %lu\n", ps.cpu_time_total());
+  printf("guest CPU time: %lu\n", ps.guest_time_total());
+  /// -----------
   
   std::string output;
   std::smatch sm;
-  std::regex  re(".*IRC SERVICE STARTED.*");
+  std::regex  re(".*IncludeOS IRC Service.*");
   
   do
   {

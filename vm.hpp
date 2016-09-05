@@ -21,7 +21,7 @@ class VM {
   bool is_booted_{false};
   
 public:
-  void boot(bool VERB = false);
+  void boot(uint32_t memory, bool VERB = false);
   
   void kill(){
     delete proc_;
