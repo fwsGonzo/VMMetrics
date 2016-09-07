@@ -7,6 +7,7 @@
 #include <map>
 #include <regex>
 #include "vm.hpp"
+#include "node.hpp"
 #include "perfdata/pidstat.hpp"
 
 #define VERBOSE
@@ -59,6 +60,58 @@ cpu_time run_includeos_boot_test(int n)
   
   return usage;
 }
+cpu_time run_acorn_httperf(int n)
+{
+  auto* vm = new
+     VM("acorn",
+        "c0:01:0a:00:00:2a",
+        "10.0.0.42",
+        "../acorn/Acorn.img",
+        "./disk.img",
+        "Running [ Acorn ]",
+        "acorn.log");
+  
+  vm->boot(false);
+  
+  /// do the test
+  printf("acorn booted\n");
+  int res = system("httperf --server 10.00.42 --port 80 --num-conns 500 --hog");
+  if (res < 0) perror(strerror(errno));
+  
+  perfdata::Pidstat ps(vm->pid());
+  cpu_time usage {
+      ps.cpu_time_total(),
+      ps.guest_time_total()
+  };
+  /// -----------
+  printf("%u: total CPU time: %lu\n", n+1, usage.cpu_total);
+  printf("%u: guest CPU time: %lu\n", n+1, usage.cpu_guest);
+  
+  vm->kill();
+  delete vm;
+  
+  return usage;
+}
+
+cpu_time run_nodejs_httperf(int n)
+{
+  Node js({"nodejs", "./node/http.js"}, "Server listening on");
+  
+  /// do the test
+  int res = system("httperf --server 127.00.1 --port 8080 --num-conns 1000 --hog");
+  if (res < 0) perror(strerror(errno));
+  
+  perfdata::Pidstat ps(js.pid());
+  cpu_time usage {
+      ps.cpu_time_total(),
+      ps.guest_time_total()
+  };
+  /// -----------
+  printf("%u: total CPU time: %lu\n", n+1, usage.cpu_total);
+  printf("%u: guest CPU time: %lu\n", n+1, usage.cpu_guest);
+  return usage;
+}
+
 
 cpu_time average(const std::vector<cpu_time>& usage)
 {
@@ -80,7 +133,8 @@ int main(void)
   
   for (int i = 0; i < RUNS; i++)
   {
-    usage.push_back(run_includeos_boot_test(i));
+    //usage.push_back(run_acorn_httperf(i));
+    usage.push_back(run_nodejs_httperf(i));
   }
   printf("------------------------------\n");
   printf("Over a total of %u runs\n", RUNS);
