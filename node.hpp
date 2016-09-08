@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cppshell/subprocess.hpp"
+#include <vector>
 
 struct Node
 {
