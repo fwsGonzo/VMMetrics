@@ -3,6 +3,7 @@
  * 
  * 
 **/
+#include <cassert>
 #include <iostream>
 #include <map>
 #include <regex>
@@ -75,14 +76,15 @@ cpu_time run_acorn_httperf(int n)
         "acorn.log");
   
   vm->boot(false);
+  perfdata::Pidstat ps1(vm->pid());
   
   /// do the test
   HttPerf perf("10.00.42", "80", "500");
   
-  perfdata::Pidstat ps(vm->pid());
+  perfdata::Pidstat ps2(vm->pid());
   cpu_time usage {
-      ps.cpu_time_total(),
-      ps.guest_time_total(),
+      ps2.cpu_time_total() - ps1.cpu_time_total(),
+      ps2.guest_time_total() - ps1.guest_time_total(),
       perf.get_rps()
   };
   /// -----------
@@ -99,14 +101,15 @@ cpu_time run_acorn_httperf(int n)
 cpu_time run_nodejs_httperf(int n)
 {
   Node js({"nodejs", "./node/http.js"}, "Server listening on");
+  perfdata::Pidstat ps1(js.pid());
   
   /// do the test
   HttPerf perf("127.00.1", "8080", "1000");
   
-  perfdata::Pidstat ps(js.pid());
+  perfdata::Pidstat ps2(js.pid());
   cpu_time usage {
-      ps.cpu_time_total(),
-      ps.guest_time_total(),
+      ps2.cpu_time_total() - ps1.cpu_time_total(),
+      ps2.guest_time_total() - ps1.guest_time_total(),
       perf.get_rps()
   };
   /// -----------
@@ -116,6 +119,31 @@ cpu_time run_nodejs_httperf(int n)
   return usage;
 }
 
+cpu_time run_nodejs_json(int n)
+{
+  Node js({"nodejs", "./node/http.js"}, "Server listening on");
+  perfdata::Pidstat ps1(js.pid());
+  
+  /// do the test
+  int res = system(
+  "curl -S -s -H 'Content-Type:application/json' "
+  "-H 'Accept: application/json' "
+  "--data-binary @generated.json "
+  "http://localhost:8080/post1 > /dev/null");
+  assert(res == 0);
+
+  /// measurements
+  perfdata::Pidstat ps2(js.pid());
+  cpu_time usage {
+      ps2.cpu_time_total() - ps1.cpu_time_total(),
+      ps2.guest_time_total() - ps1.guest_time_total(),
+      0.0f
+  };
+  /// -----------
+  printf("%u: total CPU time: %lu\n", n+1, usage.cpu_total);
+  printf("%u: guest CPU time: %lu\n", n+1, usage.cpu_guest);
+  return usage;
+}
 
 cpu_time average(const std::vector<cpu_time>& usage)
 {
@@ -139,8 +167,9 @@ int main(void)
   
   for (int i = 0; i < RUNS; i++)
   {
-    usage.push_back(run_acorn_httperf(i));
+    //usage.push_back(run_acorn_httperf(i));
     //usage.push_back(run_nodejs_httperf(i));
+    usage.push_back(run_nodejs_json(i));
   }
   printf("------------------------------\n");
   printf("Over a total of %u runs\n", RUNS);
@@ -149,18 +178,4 @@ int main(void)
   printf("* Average total CPU time: %lu\n", avg.cpu_total);
   printf("* Average guest CPU time: %lu\n", avg.cpu_guest);
   printf("* Average requests/sec:   %.2f req/s\n", avg.RPS);
-  /*
-  std::string output;
-  std::smatch sm;
-  std::regex  re(".*IncludeOS IRC Service.*");
-  
-  do
-  {
-    output = vm->getline();
-#ifdef VERBOSE
-    std::cout << "<- " << output;
-#endif
-  }
-  while (!std::regex_search(output, sm, re));
-  */
 }

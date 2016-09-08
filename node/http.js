@@ -2,6 +2,7 @@
 var fs   = require('fs');
 var http = require('http');
 var dispatcher = require('httpdispatcher');
+var qs = require('querystring');
 
 const PORT = 8080; 
 
@@ -9,7 +10,7 @@ const PORT = 8080;
 function handleRequest(request, response)
 {
     try {
-        console.log(request.url);
+        //console.log(request.url);
         dispatcher.dispatch(request, response);
     } catch(err) {
         console.log(err);
@@ -34,8 +35,19 @@ function(req, res) {
 //A sample POST request
 dispatcher.onPost("/post1", 
 function(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end('Got Post Data');
+  
+  var json = JSON.parse(req.body);
+  /// now sort it
+  var sorted = json.sort(
+  function N(a, b) {
+    return b._id < a._id ? 1
+        :  b._id > a._id ? -1
+        : 0;
+  });
+  ///
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.end(JSON.stringify(sorted), 'utf-8');
+  
 });
 
 //Create a server
