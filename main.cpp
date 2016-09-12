@@ -125,18 +125,22 @@ cpu_time run_nodejs_json(int n)
   perfdata::Pidstat ps1(js.pid());
   
   /// do the test
-  int res = system(
-  "curl -S -s -H 'Content-Type:application/json' "
-  "-H 'Accept: application/json' "
-  "--data-binary @generated.json "
-  "http://localhost:8080/post1 > /dev/null");
-  assert(res == 0);
+  const int N = 10;
+  for (int i = 0; i < N; i++)
+  {
+    int res = system(
+      "curl -S -s -H 'Content-Type:application/json' "
+      "-H 'Accept: application/json' "
+      "--data-binary @generated.json "
+      "http://localhost:8080/post1 > /dev/null");
+    assert(res == 0);
+  }
 
   /// measurements
   perfdata::Pidstat ps2(js.pid());
   cpu_time usage {
-      ps2.cpu_time_total() - ps1.cpu_time_total(),
-      ps2.guest_time_total() - ps1.guest_time_total(),
+      (ps2.cpu_time_total() - ps1.cpu_time_total()) / N,
+      (ps2.guest_time_total() - ps1.guest_time_total()) / N,
       0.0f
   };
   /// -----------
@@ -168,8 +172,10 @@ int main(void)
   for (int i = 0; i < RUNS; i++)
   {
     //usage.push_back(run_acorn_httperf(i));
-    //usage.push_back(run_nodejs_httperf(i));
-    usage.push_back(run_nodejs_json(i));
+    usage.push_back(run_nodejs_httperf(i));
+    
+    //usage.push_back(run_acorn_json(i));
+    //usage.push_back(run_nodejs_json(i));
   }
   printf("------------------------------\n");
   printf("Over a total of %u runs\n", RUNS);

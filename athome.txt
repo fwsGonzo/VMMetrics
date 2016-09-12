@@ -1,0 +1,108 @@
+///   IncludeOS   ///
+
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+1: total CPU time: 9
+1: guest CPU time: 3
+1: requests/sec:   7583.20 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+2: total CPU time: 10
+2: guest CPU time: 3
+2: requests/sec:   7807.00 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+3: total CPU time: 11
+3: guest CPU time: 4
+3: requests/sec:   7593.90 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+4: total CPU time: 15
+4: guest CPU time: 4
+4: requests/sec:   5569.20 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+5: total CPU time: 11
+5: guest CPU time: 2
+5: requests/sec:   7765.90 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+6: total CPU time: 11
+6: guest CPU time: 4
+6: requests/sec:   7438.20 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+7: total CPU time: 10
+7: guest CPU time: 2
+7: requests/sec:   7091.90 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+8: total CPU time: 10
+8: guest CPU time: 2
+8: requests/sec:   7424.80 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+9: total CPU time: 10
+9: guest CPU time: 5
+9: requests/sec:   7510.80 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+10: total CPU time: 11
+10: guest CPU time: 4
+10: requests/sec:   7185.10 req/s
+------------------------------
+Over a total of 10 runs
+* Average total CPU time: 10
+* Average guest CPU time: 3
+* Average requests/sec:   7297.00 req/s
+
+Test time:
+real	0m12.078s
+user	0m6.648s
+sys	0m5.116s
+
+///   NodeJS   ///
+
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+1: total CPU time: 23
+1: guest CPU time: 0
+1: requests/sec:   5060.20 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+2: total CPU time: 22
+2: guest CPU time: 0
+2: requests/sec:   5612.60 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+3: total CPU time: 24
+3: guest CPU time: 0
+3: requests/sec:   5254.80 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+4: total CPU time: 24
+4: guest CPU time: 0
+4: requests/sec:   5140.30 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+5: total CPU time: 23
+5: guest CPU time: 0
+5: requests/sec:   5340.30 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+6: total CPU time: 21
+6: guest CPU time: 0
+6: requests/sec:   5452.90 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+7: total CPU time: 23
+7: guest CPU time: 0
+7: requests/sec:   5254.30 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+8: total CPU time: 21
+8: guest CPU time: 0
+8: requests/sec:   5525.20 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+9: total CPU time: 23
+9: guest CPU time: 0
+9: requests/sec:   5266.70 req/s
+httperf: warning: open file limit > FD_SETSIZE; limiting max. # of open files to FD_SETSIZE
+10: total CPU time: 23
+10: guest CPU time: 0
+10: requests/sec:   5266.80 req/s
+------------------------------
+Over a total of 10 runs
+* Average total CPU time: 22
+* Average guest CPU time: 0
+* Average requests/sec:   5317.41 req/s
+
+Test time:
+real	0m2.536s
+user	0m2.788s
+sys	0m1.956s
+
+TLDR:
+On my Intel, IncludeOS is 37% faster than native NodeJS using only 60% as much CPU time - but the test takes 6x longer to run
