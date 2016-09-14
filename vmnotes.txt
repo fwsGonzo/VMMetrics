@@ -1,0 +1,55 @@
+In all cases this commandline to httperf is being used:
+```
+httperf --server ... --port ... --hog --num-conns 500
+```
+
+All tests run on this computer:
+```
+Description:	Ubuntu 16.04.1 LTS
+Linux gonzo-All-Series 4.4.0-36-generic #55-Ubuntu SMP Thu Aug 11 18:01:55 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+Intel(R) Core(TM) i7-4770K CPU @ 3.50GHz, 24GB RAM
+```
+
+Single-threaded Apache2 httpd on virt-manager with default Ubuntu 16.04:
+66 samples
+* Average total CPU time: 19
+* Average guest CPU time: 8
+* Average requests/sec:   2967.93 req/s
+
+IncludeOS Acorn httpd on virt-manager:
+66 samples
+* Average total CPU time: 5
+* Average guest CPU time: 3
+* Average requests/sec:   8598.19 req/s
+
+NodeJS httpd on virt-manager with default Ubuntu 16.04:
+66 samples
+* Average total CPU time: 24
+* Average guest CPU time: 13
+* Average requests/sec:   2334.69 req/s
+
+Apache2 uses 3.8 times more CPU time than IncludeOS to do *LESS* work
+Apache2 is configured to send a file, index.html, with nothing else behind it
+The index.html file used is the wget result from the one in Acorn running on IncludeOS
+IncludeOS performs 2.9 times better than Apache2 in this test
+
+NodeJS uses 4.8 times more CPU time than IncludeOS, but it does more or less the same amount of work
+Our NodeJS test is using http-dispatcher as the routing plugin to achieve same functionality
+The index.html file used is the wget result from the one in Acorn running on IncludeOS
+IncludeOS performs 3.7 times better than NodeJS in this test
+
+-----------------------------------------------------------------------------------------------------------
+Note: To get IncludeOS to run in virt-manager select NIC driver "virtio" and use "Specify shared device name" 
+with bridge name "include0". Start Acorn and verify the bridge works with: ping 10.0.0.42
+
+Note: To make Apache2 single-threaded use this advice from superuser:
+http://superuser.com/questions/783635/how-to-make-apache-2-4-work-in-single-worker-mode-by-default
+<IfModule mpm_event_module>
+    StartServers             1
+    MinSpareThreads          1
+    MaxSpareThreads          1
+    ThreadsPerChild          1
+    MaxRequestWorkers        1
+    MaxConnectionsPerChild   0
+    ServerLimit              1
+</IfModule>

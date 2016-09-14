@@ -97,6 +97,26 @@ cpu_time run_acorn_httperf(int n)
   
   return usage;
 }
+cpu_time run_ubuntu_httperf(int n, uint64_t pid, const std::string& ip, const std::string& port)
+{
+  perfdata::Pidstat ps1(pid);
+  
+  /// do the test
+  HttPerf perf(ip, port, "500");
+  
+  perfdata::Pidstat ps2(pid);
+  cpu_time usage {
+      ps2.cpu_time_total() - ps1.cpu_time_total(),
+      ps2.guest_time_total() - ps1.guest_time_total(),
+      perf.get_rps()
+  };
+  /// -----------
+  printf("%u: total CPU time: %lu\n", n+1, usage.cpu_total);
+  printf("%u: guest CPU time: %lu\n", n+1, usage.cpu_guest);
+  printf("%u: requests/sec:   %.2f req/s\n", n+1, usage.RPS);
+  
+  return usage;
+}
 
 cpu_time run_nodejs_httperf(int n)
 {
@@ -166,16 +186,30 @@ cpu_time average(const std::vector<cpu_time>& usage)
 
 int main(void)
 {
-  const int RUNS = 10;
+  const int RUNS = 100;
   std::vector<cpu_time> usage;
   
   for (int i = 0; i < RUNS; i++)
   {
+    //usage.push_back(run_includeos_boot_test(i));
+    
     //usage.push_back(run_acorn_httperf(i));
-    usage.push_back(run_nodejs_httperf(i));
+    //usage.push_back(run_nodejs_httperf(i));
+    
+    /// apache on virt-manager:
+    //usage.push_back(run_ubuntu_httperf(i, 27259, "192.168.122.189", "80"));
+    /// includeos on virt-manager:
+    //usage.push_back(run_ubuntu_httperf(i, 16148, "10.00.42", "80"));
+    /// nodejs on virt-manager:
+    usage.push_back(run_ubuntu_httperf(i, 27259, "192.168.122.189", "8080"));
     
     //usage.push_back(run_acorn_json(i));
     //usage.push_back(run_nodejs_json(i));
+    
+    cpu_time avg = average(usage);
+    printf("* Average total CPU time: %lu\n", avg.cpu_total);
+    printf("* Average guest CPU time: %lu\n", avg.cpu_guest);
+    printf("* Average requests/sec:   %.2f req/s\n", avg.RPS);
   }
   printf("------------------------------\n");
   printf("Over a total of %u runs\n", RUNS);
